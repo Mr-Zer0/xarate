@@ -1,6 +1,25 @@
 import { useEffect, useState } from 'react'
-import { BrowserRouter } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { initializeDatabase } from './db'
+import { LoginPage } from './pages/LoginPage'
+import { SignupPage } from './pages/SignupPage'
+import { ProtectedRoute } from './components/auth'
+
+// Temporary home page component
+function HomePage() {
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">
+          Personal Expense Tracker
+        </h1>
+        <p className="text-gray-600">
+          Welcome! You're successfully authenticated.
+        </p>
+      </div>
+    </div>
+  )
+}
 
 function App() {
   const [dbReady, setDbReady] = useState(false)
@@ -47,11 +66,19 @@ function App() {
 
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-gray-50">
-        <h1 className="text-3xl font-bold text-center py-8">
-          Personal Expense Tracker
-        </h1>
-      </div>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <HomePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </BrowserRouter>
   )
 }
