@@ -17,7 +17,7 @@
   - Create .env file with Supabase credentials
   - _Requirements: 1.1, 7.1, 8.5_
 
-- [ ] 3. Implement core TypeScript types and interfaces
+- [x] 3. Implement core TypeScript types and interfaces
   - Define User, Household, Category, Expense interfaces
   - Define OCRData, ExpenseFilter, SyncOperation interfaces
   - Define service interfaces (IExpenseService, IUserService, ICategoryService, IAuthService, ISyncService, IOCRService)
