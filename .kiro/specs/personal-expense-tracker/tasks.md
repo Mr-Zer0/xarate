@@ -31,15 +31,15 @@
   - Implement database initialization and migration logic
   - _Requirements: 7.1, 7.2, 7.3, 8.3_
 
-- [ ] 5. Implement authentication service and UI
-- [ ] 5.1 Create AuthService with Supabase integration
+- [x] 5. Implement authentication service and UI
+- [x] 5.1 Create AuthService with Supabase integration
   - Implement signUp, signIn, signInWithMagicLink, signOut methods
   - Implement session management (getCurrentSession, refreshSession)
   - Implement getCurrentUser and updateProfile methods
   - Handle authentication errors and token refresh
   - _Requirements: 1.1, 1.2_
 
-- [ ] 5.2 Create authentication UI components
+- [x] 5.2 Create authentication UI components
   - Build LoginForm component with email/password fields
   - Build SignupForm component with email, password, name fields
   - Create AuthLayout wrapper component
@@ -47,7 +47,7 @@
   - Add loading states and success feedback
   - _Requirements: 1.1, 1.2, 10.2, 10.4_
 
-- [ ] 5.3 Implement protected route wrapper
+- [x] 5.3 Implement protected route wrapper
   - Create ProtectedRoute component that checks authentication
   - Redirect unauthenticated users to login
   - Handle session expiration gracefully
