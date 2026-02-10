@@ -24,7 +24,7 @@
   - Define error types and enums
   - _Requirements: All requirements (foundation)_
 
-- [ ] 4. Implement IndexedDB setup with Dexie.js
+- [x] 4. Implement IndexedDB setup with Dexie.js
   - Create Dexie database class with schema definition
   - Define object stores: households, users, categories, expenses, settings, sync_queue
   - Create indexes for efficient querying
