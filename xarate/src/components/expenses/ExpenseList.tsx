@@ -4,6 +4,7 @@ import { useExpenseStore } from '../../stores/expenseStore';
 import { useCategoryStore } from '../../stores/categoryStore';
 import type { Expense, Category, User } from '../../types/models';
 import { db } from '../../db/database';
+import { ExpenseCard } from './ExpenseCard';
 
 export const ExpenseList: React.FC = () => {
   const {
@@ -123,45 +124,21 @@ export const ExpenseList: React.FC = () => {
     return users.find(user => user.id === userId);
   };
 
-  // Format currency
-  const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
+  // Handle edit expense
+  const handleEditExpense = (expense: Expense) => {
+    // TODO: Navigate to edit page or open edit modal
+    console.log('Edit expense:', expense);
   };
 
-  // Format date
-  const formatDate = (date: Date): string => {
-    const today = new Date();
-    const expenseDate = new Date(date);
-    
-    // Check if today
-    if (
-      expenseDate.getDate() === today.getDate() &&
-      expenseDate.getMonth() === today.getMonth() &&
-      expenseDate.getFullYear() === today.getFullYear()
-    ) {
-      return 'Today';
+  // Handle delete expense
+  const handleDeleteExpense = async (expense: Expense) => {
+    if (window.confirm('Are you sure you want to delete this expense?')) {
+      try {
+        await useExpenseStore.getState().deleteExpense(expense.id);
+      } catch (error) {
+        console.error('Failed to delete expense:', error);
+      }
     }
-
-    // Check if yesterday
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    if (
-      expenseDate.getDate() === yesterday.getDate() &&
-      expenseDate.getMonth() === yesterday.getMonth() &&
-      expenseDate.getFullYear() === yesterday.getFullYear()
-    ) {
-      return 'Yesterday';
-    }
-
-    // Format as date
-    return expenseDate.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: expenseDate.getFullYear() !== today.getFullYear() ? 'numeric' : undefined,
-    });
   };
 
   // Render expense card
@@ -170,67 +147,14 @@ export const ExpenseList: React.FC = () => {
     const user = getUserById(expense.userId);
 
     return (
-      <div
+      <ExpenseCard
         key={expense.id}
-        className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
-      >
-        <div className="flex items-start justify-between">
-          <div className="flex items-start space-x-3 flex-1 min-w-0">
-            {/* Category icon */}
-            <div
-              className="w-12 h-12 rounded-lg flex items-center justify-center text-2xl flex-shrink-0"
-              style={{ backgroundColor: `${category?.color || '#6B7280'}20` }}
-            >
-              {category?.icon || '📦'}
-            </div>
-
-            {/* Expense details */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between">
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-medium text-gray-900 truncate">
-                    {expense.description}
-                  </h3>
-                  <p className="text-sm text-gray-500 mt-0.5">
-                    {category?.name || 'Unknown'}
-                  </p>
-                </div>
-                <div className="text-right ml-3 flex-shrink-0">
-                  <p className="font-semibold text-gray-900">
-                    {formatCurrency(expense.amount)}
-                  </p>
-                </div>
-              </div>
-
-              {/* Date and user */}
-              <div className="flex items-center mt-2 space-x-3">
-                <span className="text-xs text-gray-500">
-                  {formatDate(expense.date)}
-                </span>
-                
-                {user && (
-                  <div className="flex items-center space-x-1.5">
-                    <div
-                      className="w-5 h-5 rounded-full flex items-center justify-center text-xs text-white font-medium"
-                      style={{ backgroundColor: user.color }}
-                      title={user.name}
-                    >
-                      {user.name.charAt(0).toUpperCase()}
-                    </div>
-                    <span className="text-xs text-gray-500">{user.name}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Category color indicator */}
-              <div
-                className="mt-2 h-1 rounded-full"
-                style={{ backgroundColor: category?.color || '#6B7280' }}
-              ></div>
-            </div>
-          </div>
-        </div>
-      </div>
+        expense={expense}
+        category={category}
+        user={user}
+        onEdit={handleEditExpense}
+        onDelete={handleDeleteExpense}
+      />
     );
   };
 
