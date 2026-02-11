@@ -3,3 +3,4 @@ export { AuthLayout } from './AuthLayout';
 export { LoginForm } from './LoginForm';
 export { SignupForm } from './SignupForm';
 export { ProtectedRoute } from './ProtectedRoute';
+export { SetupGuard } from './SetupGuard';

@@ -3,7 +3,9 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { initializeDatabase } from './db'
 import { LoginPage } from './pages/LoginPage'
 import { SignupPage } from './pages/SignupPage'
-import { ProtectedRoute } from './components/auth'
+import { HouseholdSetupPage } from './pages/HouseholdSetupPage'
+import { CategoriesPage } from './pages/CategoriesPage'
+import { ProtectedRoute, SetupGuard } from './components/auth'
 
 // Temporary home page component
 function HomePage() {
@@ -13,9 +15,17 @@ function HomePage() {
         <h1 className="text-3xl font-bold text-gray-900 mb-4">
           Personal Expense Tracker
         </h1>
-        <p className="text-gray-600">
+        <p className="text-gray-600 mb-6">
           Welcome! You're successfully authenticated.
         </p>
+        <div className="space-y-4">
+          <a
+            href="/categories"
+            className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+          >
+            Manage Categories
+          </a>
+        </div>
       </div>
     </div>
   )
@@ -70,10 +80,30 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route
+          path="/setup"
+          element={
+            <ProtectedRoute>
+              <HouseholdSetupPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/"
           element={
             <ProtectedRoute>
-              <HomePage />
+              <SetupGuard>
+                <HomePage />
+              </SetupGuard>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/categories"
+          element={
+            <ProtectedRoute>
+              <SetupGuard>
+                <CategoriesPage />
+              </SetupGuard>
             </ProtectedRoute>
           }
         />

@@ -24,27 +24,31 @@ export class AuthService implements IAuthService {
         throw new AuthError('Sign up failed: No user returned');
       }
 
-      // Create household for the new user
-      const household = await this.createHousehold(`${name}'s Household`);
+      // Use database function to create household and user profile atomically
+      // This bypasses RLS issues during signup
+      const color = this.generateRandomColor();
+      const { error: dbError } = await supabase.rpc(
+        'create_user_with_household',
+        {
+          user_id: authData.user.id,
+          user_email: email,
+          user_name: name,
+          user_color: color,
+          household_name: `${name}'s Household`,
+        }
+      );
 
-      // Create user profile in our users table
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .insert({
-          id: authData.user.id,
-          email,
-          name,
-          color: this.generateRandomColor(),
-          household_id: household.id,
-        })
-        .select()
-        .single();
-
-      if (userError) {
-        throw new AuthError(`Failed to create user profile: ${userError.message}`);
+      if (dbError) {
+        throw new AuthError(`Failed to create user profile: ${dbError.message}`);
       }
 
-      return this.mapUserFromDb(userData);
+      // Fetch the created user profile
+      const user = await this.getCurrentUser();
+      if (!user) {
+        throw new AuthError('Failed to fetch created user profile');
+      }
+
+      return user;
     } catch (error) {
       if (error instanceof AuthError) {
         throw error;
@@ -272,7 +276,7 @@ export class AuthService implements IAuthService {
   }
 
   /**
-   * Create a new household
+   * Create a new household with default categories
    */
   async createHousehold(name: string): Promise<Household> {
     try {
@@ -286,12 +290,56 @@ export class AuthService implements IAuthService {
         throw new AuthError(`Failed to create household: ${householdError.message}`);
       }
 
-      return this.mapHouseholdFromDb(householdData);
+      const household = this.mapHouseholdFromDb(householdData);
+
+      // Initialize default categories for the new household
+      await this.initializeDefaultCategories(household.id);
+
+      return household;
     } catch (error) {
       if (error instanceof AuthError) {
         throw error;
       }
       throw new AuthError(`Failed to create household: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Initialize default categories for a household
+   */
+  async initializeDefaultCategories(householdId: string): Promise<void> {
+    try {
+      const defaultCategories = [
+        { name: 'Groceries', icon: '🛒', color: '#10B981' },
+        { name: 'Dining', icon: '🍽️', color: '#F59E0B' },
+        { name: 'Transportation', icon: '🚗', color: '#3B82F6' },
+        { name: 'Utilities', icon: '💡', color: '#8B5CF6' },
+        { name: 'Entertainment', icon: '🎬', color: '#EC4899' },
+        { name: 'Healthcare', icon: '🏥', color: '#EF4444' },
+        { name: 'Shopping', icon: '🛍️', color: '#14B8A6' },
+        { name: 'Other', icon: '📦', color: '#6B7280' },
+      ];
+
+      const categoriesToInsert = defaultCategories.map(cat => ({
+        household_id: householdId,
+        name: cat.name,
+        icon: cat.icon,
+        color: cat.color,
+        is_default: true,
+      }));
+
+      const { error } = await supabase
+        .from('categories')
+        .insert(categoriesToInsert);
+
+      if (error) {
+        throw new AuthError(`Failed to initialize default categories: ${error.message}`);
+      }
+    } catch (error) {
+      if (error instanceof AuthError) {
+        throw error;
+      }
+      throw new AuthError(`Failed to initialize default categories: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
