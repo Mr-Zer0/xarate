@@ -1,6 +1,6 @@
 // Expenses page - displays the list of expenses
 import React from 'react';
-import { ExpenseList } from '../components/expenses';
+import { ExpenseList, ExpenseFilters } from '../components/expenses';
 
 export const ExpensesPage: React.FC = () => {
   return (
@@ -10,6 +10,8 @@ export const ExpensesPage: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900">Expenses</h1>
         </div>
       </header>
+      
+      <ExpenseFilters />
       
       <main className="flex-1 overflow-hidden">
         <ExpenseList />
