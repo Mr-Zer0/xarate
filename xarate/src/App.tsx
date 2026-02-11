@@ -5,6 +5,7 @@ import { LoginPage } from './pages/LoginPage'
 import { SignupPage } from './pages/SignupPage'
 import { HouseholdSetupPage } from './pages/HouseholdSetupPage'
 import { CategoriesPage } from './pages/CategoriesPage'
+import { ExpensesPage } from './pages/ExpensesPage'
 import { ProtectedRoute, SetupGuard } from './components/auth'
 
 // Temporary home page component
@@ -19,6 +20,12 @@ function HomePage() {
           Welcome! You're successfully authenticated.
         </p>
         <div className="space-y-4">
+          <a
+            href="/expenses"
+            className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors mr-4"
+          >
+            View Expenses
+          </a>
           <a
             href="/categories"
             className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
@@ -103,6 +110,16 @@ function App() {
             <ProtectedRoute>
               <SetupGuard>
                 <CategoriesPage />
+              </SetupGuard>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/expenses"
+          element={
+            <ProtectedRoute>
+              <SetupGuard>
+                <ExpensesPage />
               </SetupGuard>
             </ProtectedRoute>
           }
