@@ -90,7 +90,7 @@ export interface ISyncService {
   // Queue management
   queueOperation(operation: SyncOperation): void;
   processQueue(): Promise<void>;
-  getQueueStatus(): QueueStatus;
+  getQueueStatus(): Promise<QueueStatus>;
 }
 
 export interface IOCRService {
