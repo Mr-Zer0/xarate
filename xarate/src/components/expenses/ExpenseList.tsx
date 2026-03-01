@@ -7,6 +7,7 @@ import type { Expense, Category, User } from '../../types/models';
 import { db } from '../../db/database';
 import { ExpenseCard } from './ExpenseCard';
 import { ExpenseForm } from './ExpenseForm';
+import { DeleteExpenseDialog } from './DeleteExpenseDialog';
 
 export const ExpenseList: React.FC = () => {
   const {
@@ -26,6 +27,7 @@ export const ExpenseList: React.FC = () => {
   const [pullDistance, setPullDistance] = useState(0);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  const [deletingExpense, setDeletingExpense] = useState<Expense | null>(null);
 
   // Refs for infinite scroll
   const observerTarget = useRef<HTMLDivElement>(null);
@@ -136,16 +138,27 @@ export const ExpenseList: React.FC = () => {
   };
 
   // Handle delete expense
-  const handleDeleteExpense = async (expense: Expense) => {
-    if (window.confirm('Are you sure you want to delete this expense?')) {
-      try {
-        await useExpenseStore.getState().deleteExpense(expense.id);
-        showToast('success', 'Expense deleted successfully');
-      } catch (error) {
-        console.error('Failed to delete expense:', error);
-        showToast('error', 'Failed to delete expense');
-      }
+  const handleDeleteExpense = (expense: Expense) => {
+    setDeletingExpense(expense);
+  };
+
+  // Confirm delete expense
+  const handleConfirmDelete = async () => {
+    if (!deletingExpense) return;
+
+    try {
+      await useExpenseStore.getState().deleteExpense(deletingExpense.id);
+      showToast('success', 'Expense deleted successfully');
+      setDeletingExpense(null);
+    } catch (error) {
+      console.error('Failed to delete expense:', error);
+      showToast('error', 'Failed to delete expense');
     }
+  };
+
+  // Cancel delete expense
+  const handleCancelDelete = () => {
+    setDeletingExpense(null);
   };
 
   // Handle form success
@@ -338,6 +351,15 @@ export const ExpenseList: React.FC = () => {
           expense={editingExpense}
           onSuccess={handleFormSuccess}
           onCancel={handleFormCancel}
+        />
+      )}
+
+      {/* Delete Expense Dialog */}
+      {deletingExpense && (
+        <DeleteExpenseDialog
+          expense={deletingExpense}
+          onConfirm={handleConfirmDelete}
+          onCancel={handleCancelDelete}
         />
       )}
     </div>

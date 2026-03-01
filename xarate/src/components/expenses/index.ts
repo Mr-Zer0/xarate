@@ -3,3 +3,4 @@ export { ExpenseList } from './ExpenseList';
 export { ExpenseCard } from './ExpenseCard';
 export { ExpenseFilters } from './ExpenseFilters';
 export { ExpenseForm } from './ExpenseForm';
+export { DeleteExpenseDialog } from './DeleteExpenseDialog';

@@ -171,7 +171,7 @@
   - Show success feedback
   - _Requirements: 6.1, 6.2, 6.3, 10.4_
 
-- [ ] 12.2 Implement delete expense functionality
+- [x] 12.2 Implement delete expense functionality
   - Add delete button to ExpenseCard
   - Show confirmation dialog before deletion
   - Delete from IndexedDB and sync to Supabase
