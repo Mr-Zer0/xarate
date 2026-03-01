@@ -180,7 +180,7 @@
   - _Requirements: 6.4, 6.5, 6.6, 10.4_
 
 - [ ] 13. Implement OCR receipt scanning feature
-- [ ] 13.1 Create OCRService with Tesseract.js
+- [x] 13.1 Create OCRService with Tesseract.js
   - Install and configure Tesseract.js
   - Implement captureFromCamera using Camera API
   - Implement selectFromGallery for file upload
