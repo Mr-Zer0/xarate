@@ -7,6 +7,7 @@ import { HouseholdSetupPage } from './pages/HouseholdSetupPage'
 import { CategoriesPage } from './pages/CategoriesPage'
 import { ExpensesPage } from './pages/ExpensesPage'
 import { ProtectedRoute, SetupGuard } from './components/auth'
+import { ToastContainer } from './components/ui'
 
 // Temporary home page component
 function HomePage() {
@@ -83,6 +84,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <ToastContainer />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />

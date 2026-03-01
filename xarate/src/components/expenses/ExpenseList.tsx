@@ -2,9 +2,11 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useExpenseStore } from '../../stores/expenseStore';
 import { useCategoryStore } from '../../stores/categoryStore';
+import { useUIStore } from '../../stores/uiStore';
 import type { Expense, Category, User } from '../../types/models';
 import { db } from '../../db/database';
 import { ExpenseCard } from './ExpenseCard';
+import { ExpenseForm } from './ExpenseForm';
 
 export const ExpenseList: React.FC = () => {
   const {
@@ -18,9 +20,12 @@ export const ExpenseList: React.FC = () => {
   } = useExpenseStore();
 
   const { categories, loadCategories } = useCategoryStore();
+  const { showToast } = useUIStore();
   const [users, setUsers] = useState<User[]>([]);
   const [isPullRefreshing, setIsPullRefreshing] = useState(false);
   const [pullDistance, setPullDistance] = useState(0);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
 
   // Refs for infinite scroll
   const observerTarget = useRef<HTMLDivElement>(null);
@@ -126,8 +131,8 @@ export const ExpenseList: React.FC = () => {
 
   // Handle edit expense
   const handleEditExpense = (expense: Expense) => {
-    // TODO: Navigate to edit page or open edit modal
-    console.log('Edit expense:', expense);
+    setEditingExpense(expense);
+    setIsFormOpen(true);
   };
 
   // Handle delete expense
@@ -135,10 +140,32 @@ export const ExpenseList: React.FC = () => {
     if (window.confirm('Are you sure you want to delete this expense?')) {
       try {
         await useExpenseStore.getState().deleteExpense(expense.id);
+        showToast('success', 'Expense deleted successfully');
       } catch (error) {
         console.error('Failed to delete expense:', error);
+        showToast('error', 'Failed to delete expense');
       }
     }
+  };
+
+  // Handle form success
+  const handleFormSuccess = async () => {
+    setIsFormOpen(false);
+    setEditingExpense(null);
+    // Refresh the expense list
+    await refreshExpenses();
+  };
+
+  // Handle form cancel
+  const handleFormCancel = () => {
+    setIsFormOpen(false);
+    setEditingExpense(null);
+  };
+
+  // Handle add expense button
+  const handleAddExpense = () => {
+    setEditingExpense(null);
+    setIsFormOpen(true);
   };
 
   // Render expense card
@@ -235,6 +262,25 @@ export const ExpenseList: React.FC = () => {
               <p className="text-gray-500 mb-4">
                 Start tracking your expenses by adding your first one
               </p>
+              <button
+                onClick={handleAddExpense}
+                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+              >
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                Add Expense
+              </button>
             </div>
           )
         )}
@@ -262,6 +308,38 @@ export const ExpenseList: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Floating Action Button (FAB) for mobile */}
+      {expenses.length > 0 && (
+        <button
+          onClick={handleAddExpense}
+          className="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all hover:scale-110 z-40"
+          aria-label="Add expense"
+        >
+          <svg
+            className="w-6 h-6 mx-auto"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+        </button>
+      )}
+
+      {/* Expense Form Modal */}
+      {isFormOpen && (
+        <ExpenseForm
+          expense={editingExpense}
+          onSuccess={handleFormSuccess}
+          onCancel={handleFormCancel}
+        />
+      )}
     </div>
   );
 };

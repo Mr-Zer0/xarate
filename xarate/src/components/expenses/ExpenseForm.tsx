@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../stores/authStore';
 import { useCategoryStore } from '../../stores/categoryStore';
+import { useUIStore } from '../../stores/uiStore';
 import { db } from '../../db/database';
 import type { Expense, User } from '../../types/models';
 
@@ -33,6 +34,7 @@ interface FormErrors {
 export const ExpenseForm: React.FC<ExpenseFormProps> = ({ expense, onSuccess, onCancel }) => {
   const { user: currentUser } = useAuthStore();
   const { categories, loadCategories } = useCategoryStore();
+  const { showToast } = useUIStore();
   
   const [householdUsers, setHouseholdUsers] = useState<User[]>([]);
   const [formData, setFormData] = useState<FormData>({
@@ -44,7 +46,6 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ expense, onSuccess, on
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
-  const [generalError, setGeneralError] = useState('');
 
   // Load categories and household users on mount
   useEffect(() => {
@@ -226,11 +227,6 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ expense, onSuccess, on
   // Handle field change with real-time validation
   const handleFieldChange = (name: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [name]: value }));
-    
-    // Clear general error when user makes changes
-    if (generalError) {
-      setGeneralError('');
-    }
 
     // Validate field in real-time
     const error = validateField(name, value);
@@ -243,14 +239,14 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ expense, onSuccess, on
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setGeneralError('');
 
     if (!validateForm()) {
+      showToast('error', 'Please fix the errors in the form');
       return;
     }
 
     if (!currentUser?.householdId) {
-      setGeneralError('No household found. Please complete setup first.');
+      showToast('error', 'No household found. Please complete setup first.');
       return;
     }
 
@@ -271,21 +267,33 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ expense, onSuccess, on
         // Update existing expense
         const { expenseService } = await import('../../services/ExpenseService');
         await expenseService.updateExpense(expense.id, expenseData);
+        showToast('success', 'Expense updated successfully');
       } else {
         // Create new expense
         const { expenseService } = await import('../../services/ExpenseService');
         await expenseService.createExpense(expenseData);
+        showToast('success', 'Expense created successfully');
         
         // Clear draft after successful creation
         clearDraft();
+        
+        // Clear form for potential next entry
+        setFormData({
+          amount: '',
+          description: '',
+          categoryId: '',
+          date: new Date().toISOString().split('T')[0],
+          userId: currentUser?.id || '',
+        });
+        setErrors({});
       }
 
+      // Call onSuccess callback to close modal/navigate
       onSuccess();
     } catch (err) {
       console.error('Form submission error:', err);
-      setGeneralError(
-        err instanceof Error ? err.message : 'Failed to save expense. Please try again.'
-      );
+      const errorMessage = err instanceof Error ? err.message : 'Failed to save expense. Please try again.';
+      showToast('error', errorMessage);
     } finally {
       setLoading(false);
     }
@@ -313,12 +321,6 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ expense, onSuccess, on
         </h3>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {generalError && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-800 text-sm">{generalError}</p>
-            </div>
-          )}
-
           {/* Amount Field */}
           <div>
             <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-2">
