@@ -164,7 +164,7 @@
   - _Requirements: 9.1, 9.7_
 
 - [ ] 12. Implement expense editing and deletion
-- [ ] 12.1 Create edit expense flow
+- [x] 12.1 Create edit expense flow
   - Load expense data into ExpenseForm
   - Pre-populate all fields except user (locked)
   - Save updates to IndexedDB and sync to Supabase

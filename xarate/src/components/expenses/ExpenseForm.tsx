@@ -19,7 +19,7 @@ interface FormData {
   amount: string;
   description: string;
   categoryId: string;
-  date: string;
+  date: string | undefined;
   userId: string;
 }
 
@@ -157,7 +157,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ expense, onSuccess, on
         }
         // Check for valid decimal places (max 2)
         const decimalParts = value.split('.');
-        if (decimalParts.length > 1 && decimalParts[1].length > 2) {
+        if (decimalParts.length > 1 && decimalParts[1] && decimalParts[1].length > 2) {
           return 'Amount can have at most 2 decimal places';
         }
         return undefined;
@@ -213,10 +213,13 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ expense, onSuccess, on
     let isValid = true;
 
     (Object.keys(formData) as Array<keyof FormData>).forEach(key => {
-      const error = validateField(key, formData[key]);
-      if (error) {
-        newErrors[key] = error;
-        isValid = false;
+      const value = formData[key];
+      if (value !== undefined) {
+        const error = validateField(key, value);
+        if (error) {
+          newErrors[key] = error;
+          isValid = false;
+        }
       }
     });
 
@@ -247,6 +250,11 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ expense, onSuccess, on
 
     if (!currentUser?.householdId) {
       showToast('error', 'No household found. Please complete setup first.');
+      return;
+    }
+
+    if (!formData.date) {
+      showToast('error', 'Date is required');
       return;
     }
 
@@ -328,6 +336,9 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ expense, onSuccess, on
   };
 
   // Pre-fill form with OCR data (will be called by OCR service in task 13)
+  // This function will be used when OCR feature is implemented in task 13
+  // Keeping it here for future integration
+  /*
   const prefillFromOCR = (ocrData: {
     amount?: number;
     description?: string;
@@ -360,6 +371,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ expense, onSuccess, on
 
     showToast('success', 'Receipt data extracted! Please review and adjust if needed.');
   };
+  */
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
