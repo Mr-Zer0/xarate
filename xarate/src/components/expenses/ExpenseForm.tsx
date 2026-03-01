@@ -5,6 +5,7 @@ import { useCategoryStore } from '../../stores/categoryStore';
 import { useUIStore } from '../../stores/uiStore';
 import { db } from '../../db/database';
 import type { Expense, User } from '../../types/models';
+import { ReceiptScanner, OCRData } from './ReceiptScanner';
 
 interface ExpenseFormProps {
   expense?: Expense | null;
@@ -46,6 +47,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ expense, onSuccess, on
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
 
   // Load categories and household users on mount
   useEffect(() => {
@@ -323,27 +325,11 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ expense, onSuccess, on
 
   // Handle scan receipt button click
   const handleScanReceipt = () => {
-    // TODO: This will be implemented in task 13 (OCR receipt scanning)
-    // For now, show a placeholder message
-    showToast('info', 'Receipt scanning will be available soon! OCR feature is coming in the next update.');
-    
-    // When OCR is implemented (task 13), this will:
-    // 1. Open camera or file picker
-    // 2. Process the receipt image with OCR
-    // 3. Extract amount, date, and merchant name
-    // 4. Pre-fill the form fields with extracted data
-    // 5. Allow user to review and correct the data
+    setShowScanner(true);
   };
 
-  // Pre-fill form with OCR data (will be called by OCR service in task 13)
-  // This function will be used when OCR feature is implemented in task 13
-  // Keeping it here for future integration
-  /*
-  const prefillFromOCR = (ocrData: {
-    amount?: number;
-    description?: string;
-    date?: Date;
-  }) => {
+  // Handle OCR data extracted from receipt
+  const handleOCRDataExtracted = (ocrData: OCRData) => {
     const updates: Partial<FormData> = {};
 
     if (ocrData.amount !== undefined) {
@@ -369,12 +355,20 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ expense, onSuccess, on
       }));
     });
 
-    showToast('success', 'Receipt data extracted! Please review and adjust if needed.');
+    const confidencePercent = Math.round(ocrData.confidence * 100);
+    showToast('success', `Receipt data extracted (${confidencePercent}% confidence)! Please review and adjust if needed.`);
   };
-  */
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+    <>
+      {showScanner && (
+        <ReceiptScanner
+          onDataExtracted={handleOCRDataExtracted}
+          onClose={() => setShowScanner(false)}
+        />
+      )}
+      
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
       <div className="bg-white rounded-lg max-w-md w-full p-6 my-8">
         <h3 className="text-xl font-bold text-gray-900 mb-4">
           {expense ? 'Edit Expense' : 'Add Expense'}
@@ -568,5 +562,6 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ expense, onSuccess, on
         </form>
       </div>
     </div>
+    </>
   );
 };
