@@ -3,7 +3,7 @@ import { ocrService, OCRResult } from '../../services/OCRService';
 import { useUIStore } from '../../stores/uiStore';
 
 interface ReceiptScannerProps {
-  onDataExtracted: (data: OCRData) => void;
+  onDataExtracted: (data: OCRData, imageBlob?: Blob) => void;
   onClose: () => void;
 }
 
@@ -238,7 +238,8 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onDataExtracted,
       rawText: ocrResult.text,
     };
 
-    onDataExtracted(data);
+    // Pass both OCR data and the original image blob
+    onDataExtracted(data, capturedImage || undefined);
     onClose();
   };
 

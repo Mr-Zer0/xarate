@@ -48,6 +48,8 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ expense, onSuccess, on
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
+  const [receiptImageBlob, setReceiptImageBlob] = useState<Blob | null>(null);
+  const [receiptImagePreview, setReceiptImagePreview] = useState<string | null>(null);
 
   // Load categories and household users on mount
   useEffect(() => {
@@ -273,21 +275,46 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ expense, onSuccess, on
         syncStatus: 'pending' as const,
       };
 
+      let savedExpense: any;
+
       if (expense) {
         // Update existing expense
         const { expenseService } = await import('../../services/ExpenseService');
-        await expenseService.updateExpense(expense.id, expenseData);
+        savedExpense = await expenseService.updateExpense(expense.id, expenseData);
         showToast('success', 'Expense updated successfully');
       } else {
         // Create new expense
         const { expenseService } = await import('../../services/ExpenseService');
-        await expenseService.createExpense(expenseData);
-        showToast('success', 'Expense created successfully');
+        savedExpense = await expenseService.createExpense(expenseData);
+        
+        // Upload receipt image if available
+        if (receiptImageBlob && savedExpense?.id) {
+          try {
+            const { ocrService } = await import('../../services/OCRService');
+            const receiptUrl = await ocrService.uploadReceiptImage(
+              receiptImageBlob,
+              currentUser.householdId,
+              savedExpense.id
+            );
+            
+            // Update expense with receipt URL
+            await expenseService.updateExpense(savedExpense.id, {
+              receiptImageUrl: receiptUrl,
+            });
+            
+            showToast('success', 'Expense and receipt saved successfully');
+          } catch (uploadError) {
+            console.error('Failed to upload receipt:', uploadError);
+            showToast('warning', 'Expense saved, but receipt upload failed');
+          }
+        } else {
+          showToast('success', 'Expense created successfully');
+        }
         
         // Clear draft after successful creation
         clearDraft();
         
-        // Clear form for potential next entry
+        // Clear form and receipt data for potential next entry
         setFormData({
           amount: '',
           description: '',
@@ -296,6 +323,11 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ expense, onSuccess, on
           userId: currentUser?.id || '',
         });
         setErrors({});
+        setReceiptImageBlob(null);
+        if (receiptImagePreview) {
+          URL.revokeObjectURL(receiptImagePreview);
+          setReceiptImagePreview(null);
+        }
       }
 
       // Call onSuccess callback to close modal/navigate
@@ -329,7 +361,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ expense, onSuccess, on
   };
 
   // Handle OCR data extracted from receipt
-  const handleOCRDataExtracted = (ocrData: OCRData) => {
+  const handleOCRDataExtracted = (ocrData: OCRData, imageBlob?: Blob) => {
     const updates: Partial<FormData> = {};
 
     if (ocrData.amount !== undefined) {
@@ -345,6 +377,13 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ expense, onSuccess, on
     }
 
     setFormData(prev => ({ ...prev, ...updates }));
+
+    // Store receipt image blob for upload
+    if (imageBlob) {
+      setReceiptImageBlob(imageBlob);
+      const previewUrl = URL.createObjectURL(imageBlob);
+      setReceiptImagePreview(previewUrl);
+    }
 
     // Validate the pre-filled fields
     Object.entries(updates).forEach(([key, value]) => {
@@ -408,6 +447,41 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ expense, onSuccess, on
               </button>
               <p className="mt-2 text-xs text-center text-gray-500">
                 Quickly add expenses by scanning your receipt
+              </p>
+            </div>
+          )}
+
+          {/* Receipt Preview - Show if receipt image is captured */}
+          {receiptImagePreview && (
+            <div className="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="flex items-start justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Receipt Image
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setReceiptImageBlob(null);
+                    if (receiptImagePreview) {
+                      URL.revokeObjectURL(receiptImagePreview);
+                      setReceiptImagePreview(null);
+                    }
+                  }}
+                  className="text-red-600 hover:text-red-700 text-sm font-medium"
+                  disabled={loading}
+                >
+                  Remove
+                </button>
+              </div>
+              <div className="relative">
+                <img
+                  src={receiptImagePreview}
+                  alt="Receipt preview"
+                  className="w-full h-32 object-cover rounded-lg border border-gray-300"
+                />
+              </div>
+              <p className="mt-2 text-xs text-gray-500">
+                This receipt will be saved with your expense
               </p>
             </div>
           )}

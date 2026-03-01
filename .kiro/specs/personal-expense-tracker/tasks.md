@@ -201,7 +201,7 @@
   - Allow manual correction of extracted fields
   - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.7, 9.8, 9.9_
 
-- [ ] 13.3 Implement receipt image storage
+- [x] 13.3 Implement receipt image storage
   - Upload receipt image to Supabase Storage
   - Generate unique filename with household_id/expense_id path
   - Compress image before upload (max 800px width)
@@ -210,7 +210,7 @@
   - _Requirements: 9.10_
 
 - [ ] 14. Build summary and analytics views
-- [ ] 14.1 Create ExpenseSummary component
+- [x] 14.1 Create ExpenseSummary component
   - Display total spending prominently
   - Add time period selector (This Month, Last Month, Custom Range)
   - Calculate and display spending by category (pie/bar chart)

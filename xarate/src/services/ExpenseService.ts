@@ -1,6 +1,7 @@
 // Expense service with Supabase integration and offline-first support
 import { supabase } from './supabase';
 import { db } from '../db/database';
+import { receiptStorageService } from './ReceiptStorageService';
 import type { IExpenseService } from '../types/services';
 import type { Expense, ExpenseFilter, CategorySummary, UserSummary } from '../types/models';
 import { ValidationError } from '../types/errors';
@@ -178,6 +179,11 @@ export class ExpenseService implements IExpenseService {
       
       if (!existingExpense) {
         throw new ValidationError('Expense not found');
+      }
+
+      // Delete receipt image if exists
+      if (existingExpense.receiptImageUrl) {
+        await receiptStorageService.deleteReceipt(existingExpense.receiptImageUrl);
       }
 
       // Delete from Supabase

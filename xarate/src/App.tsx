@@ -6,6 +6,7 @@ import { SignupPage } from './pages/SignupPage'
 import { HouseholdSetupPage } from './pages/HouseholdSetupPage'
 import { CategoriesPage } from './pages/CategoriesPage'
 import { ExpensesPage } from './pages/ExpensesPage'
+import { SummaryPage } from './pages/SummaryPage'
 import { ProtectedRoute, SetupGuard } from './components/auth'
 import { ToastContainer } from './components/ui'
 
@@ -29,9 +30,15 @@ function HomePage() {
           </a>
           <a
             href="/categories"
-            className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors mr-4"
           >
             Manage Categories
+          </a>
+          <a
+            href="/summary"
+            className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+          >
+            View Summary
           </a>
         </div>
       </div>
@@ -122,6 +129,16 @@ function App() {
             <ProtectedRoute>
               <SetupGuard>
                 <ExpensesPage />
+              </SetupGuard>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/summary"
+          element={
+            <ProtectedRoute>
+              <SetupGuard>
+                <SummaryPage />
               </SetupGuard>
             </ProtectedRoute>
           }

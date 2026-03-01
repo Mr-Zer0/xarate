@@ -1,4 +1,5 @@
 import { createWorker, Worker } from 'tesseract.js';
+import { receiptStorageService } from './ReceiptStorageService';
 
 export interface OCRResult {
   text: string;
@@ -6,6 +7,7 @@ export interface OCRResult {
   amount?: number;
   date?: Date;
   merchant?: string;
+  imageBlob?: Blob; // Original image blob for storage
 }
 
 export interface IOCRService {
@@ -16,6 +18,13 @@ export interface IOCRService {
   extractAmount(text: string): number | null;
   extractDate(text: string): Date | null;
   extractMerchant(text: string): string | null;
+  uploadReceiptImage(image: Blob, householdId: string, expenseId: string): Promise<string>;
+}
+
+export interface IReceiptStorageService {
+  uploadReceipt(image: Blob, householdId: string, expenseId: string): Promise<string>;
+  deleteReceipt(receiptUrl: string): Promise<void>;
+  compressImage(image: Blob, maxWidth?: number): Promise<Blob>;
 }
 
 class OCRService implements IOCRService {
@@ -244,9 +253,21 @@ class OCRService implements IOCRService {
         amount: amount ?? undefined,
         date: date ?? undefined,
         merchant: merchant ?? undefined,
+        imageBlob: image, // Include original image for storage
       };
     } catch (error) {
       throw new Error(`Failed to process receipt: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Upload receipt image to Supabase Storage
+   */
+  async uploadReceiptImage(image: Blob, householdId: string, expenseId: string): Promise<string> {
+    try {
+      return await receiptStorageService.uploadReceipt(image, householdId, expenseId);
+    } catch (error) {
+      throw new Error(`Failed to upload receipt image: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
