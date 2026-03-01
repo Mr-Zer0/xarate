@@ -157,7 +157,7 @@
   - Navigate back to list after save
   - _Requirements: 2.4, 2.5, 7.1, 10.4_
 
-- [ ] 11.3 Add scan receipt button to form
+- [x] 11.3 Add scan receipt button to form
   - Add prominent "Scan Receipt" button with camera icon
   - Integrate with OCR flow (implemented in task 13)
   - Pre-fill form fields with OCR data when available

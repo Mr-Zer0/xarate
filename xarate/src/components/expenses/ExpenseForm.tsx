@@ -313,6 +313,54 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ expense, onSuccess, on
     onCancel();
   };
 
+  // Handle scan receipt button click
+  const handleScanReceipt = () => {
+    // TODO: This will be implemented in task 13 (OCR receipt scanning)
+    // For now, show a placeholder message
+    showToast('info', 'Receipt scanning will be available soon! OCR feature is coming in the next update.');
+    
+    // When OCR is implemented (task 13), this will:
+    // 1. Open camera or file picker
+    // 2. Process the receipt image with OCR
+    // 3. Extract amount, date, and merchant name
+    // 4. Pre-fill the form fields with extracted data
+    // 5. Allow user to review and correct the data
+  };
+
+  // Pre-fill form with OCR data (will be called by OCR service in task 13)
+  const prefillFromOCR = (ocrData: {
+    amount?: number;
+    description?: string;
+    date?: Date;
+  }) => {
+    const updates: Partial<FormData> = {};
+
+    if (ocrData.amount !== undefined) {
+      updates.amount = ocrData.amount.toFixed(2);
+    }
+
+    if (ocrData.description) {
+      updates.description = ocrData.description;
+    }
+
+    if (ocrData.date) {
+      updates.date = ocrData.date.toISOString().split('T')[0];
+    }
+
+    setFormData(prev => ({ ...prev, ...updates }));
+
+    // Validate the pre-filled fields
+    Object.entries(updates).forEach(([key, value]) => {
+      const error = validateField(key as keyof FormData, value as string);
+      setErrors(prev => ({
+        ...prev,
+        [key]: error,
+      }));
+    });
+
+    showToast('success', 'Receipt data extracted! Please review and adjust if needed.');
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
       <div className="bg-white rounded-lg max-w-md w-full p-6 my-8">
@@ -321,6 +369,43 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({ expense, onSuccess, on
         </h3>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Scan Receipt Button - Only show when creating new expense */}
+          {!expense && (
+            <div className="mb-4">
+              <button
+                type="button"
+                onClick={handleScanReceipt}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-sm"
+                disabled={loading}
+              >
+                <svg 
+                  className="w-5 h-5" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" 
+                  />
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" 
+                  />
+                </svg>
+                <span>Scan Receipt</span>
+              </button>
+              <p className="mt-2 text-xs text-center text-gray-500">
+                Quickly add expenses by scanning your receipt
+              </p>
+            </div>
+          )}
+
           {/* Amount Field */}
           <div>
             <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-2">
