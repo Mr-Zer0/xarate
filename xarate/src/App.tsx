@@ -8,43 +8,8 @@ import { CategoriesPage } from './pages/CategoriesPage'
 import { ExpensesPage } from './pages/ExpensesPage'
 import { SummaryPage } from './pages/SummaryPage'
 import { ProtectedRoute, SetupGuard } from './components/auth'
+import { AppShell } from './components/layout'
 import { ToastContainer } from './components/ui'
-
-// Temporary home page component
-function HomePage() {
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">
-          Personal Expense Tracker
-        </h1>
-        <p className="text-gray-600 mb-6">
-          Welcome! You're successfully authenticated.
-        </p>
-        <div className="space-y-4">
-          <a
-            href="/expenses"
-            className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors mr-4"
-          >
-            View Expenses
-          </a>
-          <a
-            href="/categories"
-            className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors mr-4"
-          >
-            Manage Categories
-          </a>
-          <a
-            href="/summary"
-            className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-          >
-            View Summary
-          </a>
-        </div>
-      </div>
-    </div>
-  )
-}
 
 function App() {
   const [dbReady, setDbReady] = useState(false)
@@ -108,7 +73,9 @@ function App() {
           element={
             <ProtectedRoute>
               <SetupGuard>
-                <HomePage />
+                <AppShell>
+                  <Navigate to="/expenses" replace />
+                </AppShell>
               </SetupGuard>
             </ProtectedRoute>
           }
@@ -118,7 +85,9 @@ function App() {
           element={
             <ProtectedRoute>
               <SetupGuard>
-                <CategoriesPage />
+                <AppShell>
+                  <CategoriesPage />
+                </AppShell>
               </SetupGuard>
             </ProtectedRoute>
           }
@@ -128,7 +97,9 @@ function App() {
           element={
             <ProtectedRoute>
               <SetupGuard>
-                <ExpensesPage />
+                <AppShell>
+                  <ExpensesPage />
+                </AppShell>
               </SetupGuard>
             </ProtectedRoute>
           }
@@ -138,7 +109,9 @@ function App() {
           element={
             <ProtectedRoute>
               <SetupGuard>
-                <SummaryPage />
+                <AppShell>
+                  <SummaryPage />
+                </AppShell>
               </SetupGuard>
             </ProtectedRoute>
           }

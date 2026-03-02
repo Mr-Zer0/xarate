@@ -226,7 +226,7 @@
   - _Requirements: 5.3, 10.3_
 
 - [ ] 15. Implement app layout and navigation
-- [ ] 15.1 Create AppShell layout component
+- [x] 15.1 Create AppShell layout component
   - Build responsive layout with header and navigation
   - Add app title and user switcher in header
   - Implement bottom navigation for mobile (Expenses, Add, Summary)
