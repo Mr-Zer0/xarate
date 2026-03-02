@@ -1,12 +1,17 @@
 import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { initializeDatabase } from './db'
-import { LoginPage } from './pages/LoginPage'
-import { SignupPage } from './pages/SignupPage'
-import { HouseholdSetupPage } from './pages/HouseholdSetupPage'
-import { CategoriesPage } from './pages/CategoriesPage'
-import { ExpensesPage } from './pages/ExpensesPage'
-import { SummaryPage } from './pages/SummaryPage'
+import {
+  LoginPage,
+  SignupPage,
+  HouseholdSetupPage,
+  ExpensesPage,
+  AddExpensePage,
+  EditExpensePage,
+  SummaryPage,
+  CategoriesPage,
+  NotFoundPage,
+} from './pages'
 import { ProtectedRoute, SetupGuard } from './components/auth'
 import { AppShell } from './components/layout'
 import { ToastContainer } from './components/ui'
@@ -58,8 +63,11 @@ function App() {
     <BrowserRouter>
       <ToastContainer />
       <Routes>
+        {/* Public routes - Authentication */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+
+        {/* Protected route - Setup (requires auth but not setup completion) */}
         <Route
           path="/setup"
           element={
@@ -68,6 +76,8 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* Protected routes - Main app (requires auth and setup completion) */}
         <Route
           path="/"
           element={
@@ -80,18 +90,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/categories"
-          element={
-            <ProtectedRoute>
-              <SetupGuard>
-                <AppShell>
-                  <CategoriesPage />
-                </AppShell>
-              </SetupGuard>
-            </ProtectedRoute>
-          }
-        />
+
         <Route
           path="/expenses"
           element={
@@ -104,6 +103,33 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/add"
+          element={
+            <ProtectedRoute>
+              <SetupGuard>
+                <AppShell>
+                  <AddExpensePage />
+                </AppShell>
+              </SetupGuard>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/edit/:id"
+          element={
+            <ProtectedRoute>
+              <SetupGuard>
+                <AppShell>
+                  <EditExpensePage />
+                </AppShell>
+              </SetupGuard>
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/summary"
           element={
@@ -116,7 +142,22 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="*" element={<Navigate to="/" replace />} />
+
+        <Route
+          path="/categories"
+          element={
+            <ProtectedRoute>
+              <SetupGuard>
+                <AppShell>
+                  <CategoriesPage />
+                </AppShell>
+              </SetupGuard>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 404 Not Found - catch all unmatched routes */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
   )

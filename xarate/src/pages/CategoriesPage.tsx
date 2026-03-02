@@ -4,7 +4,7 @@ import { CategoryManager } from '../components/categories';
 
 export const CategoriesPage: React.FC = () => {
   return (
-    <div>
+    <div className="page-transition">
       <CategoryManager />
     </div>
   );

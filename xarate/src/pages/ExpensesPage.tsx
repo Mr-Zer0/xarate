@@ -4,7 +4,7 @@ import { ExpenseList, ExpenseFilters } from '../components/expenses';
 
 export const ExpensesPage: React.FC = () => {
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col page-transition">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Expenses</h1>
       </div>

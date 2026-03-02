@@ -234,7 +234,7 @@
   - Add sync status indicator
   - _Requirements: 10.1, 10.3, 10.5, 10.6_
 
-- [ ] 15.2 Set up React Router navigation
+- [x] 15.2 Set up React Router navigation
   - Define routes: /login, /signup, /setup, /expenses, /add, /edit/:id, /summary, /categories
   - Implement route guards for authentication
   - Add navigation transitions
