@@ -310,6 +310,7 @@ export class ExpenseService implements IExpenseService {
           categoryId,
           categoryName: category?.name || 'Unknown',
           categoryColor: category?.color || '#6B7280',
+          categoryIcon: category?.icon,
           total: stats.total,
           count: stats.count,
           percentage: total > 0 ? (stats.total / total) * 100 : 0,

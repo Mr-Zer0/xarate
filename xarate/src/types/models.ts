@@ -79,6 +79,7 @@ export interface CategorySummary {
   categoryId: string;
   categoryName: string;
   categoryColor: string;
+  categoryIcon?: string;
   total: number;
   count: number;
   percentage: number;

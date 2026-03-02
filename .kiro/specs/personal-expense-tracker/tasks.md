@@ -218,7 +218,7 @@
   - Update summaries when filters change
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 10.3_
 
-- [ ] 14.2 Create CategoryBreakdown component
+- [x] 14.2 Create CategoryBreakdown component
   - List categories with amounts and percentages
   - Display visual progress bars
   - Show category colors and icons
