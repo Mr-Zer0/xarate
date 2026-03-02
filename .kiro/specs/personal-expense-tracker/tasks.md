@@ -241,7 +241,7 @@
   - Handle 404 page
   - _Requirements: 10.1_
 
-- [ ] 15.3 Create floating action button for mobile
+- [x] 15.3 Create floating action button for mobile
   - Add FAB for quick expense entry on mobile
   - Position fixed at bottom right
   - Navigate to add expense form on tap

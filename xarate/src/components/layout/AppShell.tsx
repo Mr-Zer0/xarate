@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { useUIStore } from '../../stores/uiStore';
+import { FloatingActionButton } from '../ui/FloatingActionButton';
 
 interface AppShellProps {
   children: ReactNode;
@@ -195,6 +196,9 @@ export function AppShell({ children }: AppShellProps) {
           ))}
         </div>
       </nav>
+
+      {/* Floating Action Button for Mobile */}
+      <FloatingActionButton />
     </div>
   );
 }
